@@ -1,0 +1,106 @@
+使用18.04LTS搭建4412开发环境步骤说明
+
+1、安装vm tools一共三步
+sudo apt-get install
+sudo apt-get update
+sudo apt install net-tools
+2、安装gcc等编译环境
+sudo apt-get install gcc
+3、安装arm编译环境
+/usr/local/arm/arm-2009q3/bin
+sudo apt-get install vim
+sudo vim /etc/profile
+export PATH=/usr/local/arm/arm-2009q3/bin:$PATH
+sudo vim ~/.bashrc//命令窗口每次启动都会执行，方便更新环境变量
+Ubuntu 上配置环境变量后切换到root下环境变量无效 的解决方法。
+原因：非root  和 root 下，环境变量的配置文件不同。
+非root下，配置文件为：~/.bashrc  ，配置后执行更新： source ~/.bashrc
+root下，配置文件为：/etc/profile  ，配置后执行更新：  source /etc/profile
+解决：打开 ~/.bashrc ，把里面相应的配置变量（环境路径），复制到  /etc/profile ，然后更新即可。
+但还有一个问题，关闭终端后，下次打开又无效了。解决方法：
+解决方法：打开 gedit /root/.bashrc   ，在文件的末尾添加：
+source /etc/profile
+然后执行更新：source /root/.bashrc
+4、当环境搭建好了后不能直接编译通过
+执行 sudo apt-get install libc6:i386后编译通过
+
+
+5、搭建busybox
+apt install make
+apt install make-guile
+sudo apt-get install gcc
+使用make menuconfig出现错误后
+sudo apt-get install libncurses5-dev
+
+6、解决busybox make报错问题
+可以在/交叉编译工具链路径//arm-none-linux-gnueabi/libc/usr/include/mtd/mtd-abi.h文件中末尾的
+enum mtd_file_modes {
+MTD_MODE_NORMAL = MTD_OTP_OFF,
+MTD_MODE_OTP_FACTORY = MTD_OTP_FACTORY,
+MTD_MODE_OTP_USER = MTD_OTP_USER,
+MTD_MODE_RAW,
+};
+修改为
+enum mtd_file_modes {
+MTD_MODE_NORMAL = MTD_OTP_OFF,
+MTD_MODE_OTP_FACTORY = MTD_OTP_FACTORY,
+MTD_MODE_OTP_USER = MTD_OTP_USER,
+MTD_MODE_RAW,
+MTD_FILE_MODE_RAW,
+};
+BLKSECDISCARD在/usr/include/linux/fs.h中定义，方法如上所述，将/usr/include/linux/fs.h拷贝到busybox的include文件中，然后修改blkdiscard.c中头文件包含：
+修改：#include <linux/fs.h>为#include "fs.h"
+
+  CC      util-linux/volume_id/xfs.o
+  AR      util-linux/volume_id/lib.a
+  LINK    busybox_unstripped
+Trying libraries: crypt m
+ Library crypt is not needed, excluding it
+ Library m is needed, can't exclude it (yet)
+Final link with: m
+libbusybox: 0_lib/libbusybox.so.1.27.2
+  DOC     busybox.pod
+  DOC     BusyBox.txt
+  DOC     busybox.1
+  DOC     BusyBox.html
+
+7、生成最小系统时需要安装的库
+sudo apt-get install libstdc++6
+sudo apt-get install lib32stdc++6
+
+make_ext4fs -s -l 314572800 -a root -L linux system.img system
+
+
+二、搭建nfs系统文件(环境搭建失败)
+编译内核文件时报错处理方法gedit kernel/timeconst.pl
+第373行 if (!defined(@val)) {改为 if (@val) {
+
+
+三、搭建android开发环境
+
+关键点1 apt-get install git gnupg flex bison gperf build-essential zip curl libc6-dev libncurses5-dev x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 g++-multilib tofrodos lib32ncurses5-dev python-markdown libxml2-utils xsltproc zlib1g-dev:i386
+关键点2 apt-get install libgl1-mesa-dev-lts-wily
+关键点3 deb http://cz.archive.ubuntu.com/ubuntu trusty main universe
+关键点4 apt-get update
+关键点5 解决lib32ncurses5-dev : 换成libncurses5-dev
+
+1.apt-get install gcc-4.4 g++-4.4 g++-4.4-multilib gcc-4.4-multilib
+2.update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.4 100                               
+3.update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50                               
+4.update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.4 100                               
+5.update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50                               
+6.update-alternatives --install /usr/bin/cpp cpp-bin /usr/bin/cpp-4.4 100               
+7.update-alternatives --install /usr/bin/cpp cpp-bin /usr/bin/cpp-5 50              
+8.gcc -v
+编译android源码时用sudo apt-get install libswitch-perl
+第一步安装基本完成
+
+
+
+
+
+
+
+
+
+ 
